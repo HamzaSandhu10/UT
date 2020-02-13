@@ -5,6 +5,8 @@ var map = L.map('map', {
 	center: [58.7852,25.8288],
 	zoom: 7
 });
+
+
 //
 //adding WMS Layer
 //
@@ -62,34 +64,9 @@ var baseMaps = {
 var scale = L.control.scale({ maxWidth:100, imperial:false, position: 'bottomright' 
 
 }).addTo(map);
-//
-//---- Part 3: Adding symbols ---- 
-//
-
-//Marker Version 1
-var mark1 =L.marker([47, 14], {title:'marker1', clickable:true}).addTo(map).bindPopup("popup of marker 1");
-
-	
-//Marker Version 2
-var mark = L.marker([47, 12], {title:'marker2', clickable:true}).addTo(map);
-mark.bindPopup("this is my popup of marker 2");
 
 
-//Marker Version 3	- using a specific symbol
-var myIcon = L.icon({
-iconUrl: 'css/images/house.png',
-iconSize: [38, 38]
-});
-
-L.marker([48, 13], {icon: myIcon, title:'theHouse'}).addTo(map);
-
-//
-//---- Adding GeoJSON point features - to marker object
-//
-
-
-
-//adding a GeoJSON polygon feature set for tartu districts
+//adding a GeoJSON polygon feature set for estonia districts
 var myStyle = {
     "color": "#ff7800",
     "weight": 2,
@@ -101,11 +78,28 @@ function zoomToFeature(e) {
 }
 
 var dist = L.geoJson(districts, {
-    style: myStyle,
+	style: myStyle,
+	
     onEachFeature: function (feature, layer) {
        layer.on({click: zoomToFeature}); }
 });
 
+
+// .addTo(map.flyTo([58.37777,26.72973], 10, {
+// 	animate: true,
+// 	duration: 9 // in seconds
+// }
+// )),
+
+var tartu = L.geoJson(tartu, {
+	style: myStyle,
+    onEachFeature: function (feature, layer) {
+		
+       layer.on({click: zoomToFeature}); }
+});
+
+
+//58.37777,26.72973
 //
 //adding a GeoJSON polygon feature set for tartu counties and styling based on attributes
 //
@@ -132,9 +126,17 @@ var dist = L.geoJson(districts, {
 		};
 	}
 //calling the json file
-    var county = L.geoJson(counties, {
-        style: style,
-        }).addTo(map);
+    // var county = L.geoJson(counties, {
+    //     style: style,
+    //     }).addTo(map);
+
+		var county = L.geoJson(counties, {
+			style: style,
+			onEachFeature: function (feature, marker) {
+				marker.bindPopup("<center><b>" + feature.properties.name+ "<br>"+feature.properties.pop +" People"+"</b></center>");
+			}
+		}).addTo(map);
+
 
 //adding the legend
 
@@ -160,49 +162,14 @@ var dist = L.geoJson(districts, {
         };
         legend.addTo(map);
 
-    // function highlightFeature(e) {
-	// 	var layer = e.target;
-
-	// 	layer.setStyle({
-	// 		weight: 5,
-	// 		color: '#666',
-	// 		dashArray: '',
-	// 		fillOpacity: 0.7
-	// 	});
-
-	// 	if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-	// 		layer.bringToFront();
-	// 	}
-
-	// 	info.update(layer.feature.properties);
-    // }
-    
-	// var county;
-	// function resetHighlight(e) {
-	// 	county.resetStyle(e.target);
-	// 	info.update();
-	// }
-	// function zoomToFeature(e) {
-	// 	map.fitBounds(e.target.getBounds());
-	// }
-
-	// function onEachFeature(feature, layer) {
-	// 	layer.on({
-	// 		mouseover: highlightFeature,
-	// 		mouseout: resetHighlight,
-	// 		click: zoomToFeature
-	// 	});
-	// }
- 
-    // county = L.geoJson(counties, {
-    // style: style,
-	// onEachFeature: onEachFeature
-	// }).addTo(map);
-
-
-
 //the variable features lists layers that I want to control with the layer control
 var features = {
+	"Tartu Districts": tartu
+	.addTo(map.flyTo([58.37777,26.72973], 10, {
+	animate: true,
+	duration: 4 // in seconds
+}
+)),
     "Estonia Districts": dist,
     "Estonia Counties": county
 }
